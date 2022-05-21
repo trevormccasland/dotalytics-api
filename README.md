@@ -3,9 +3,9 @@ Development Setup
 
 For a first time setup you will have to install the requirements:
 ```bash
-pip install -r requirements.txt
+python setup.py develop
 ```
-Then you can run uvicorn like so:
+Then you can run the app like so:
 ```bash
-uvicorn main:app --reload
+dotalytics-api
 ```
