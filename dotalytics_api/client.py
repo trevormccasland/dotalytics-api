@@ -1,9 +1,8 @@
 import requests
 
 from dotalytics_api import config
-from dotalytics_api.types import match_history
-from dotalytics_api.types import match_details
-from dotalytics_api.types import heroes
+from dotalytics_api.types import items, heroes, match_details, match_history
+
 
 base_url = 'https://api.steampowered.com/'
 api_key = config.get('DotaAPIKey')
@@ -28,3 +27,10 @@ def get_heroes() -> heroes.GetHeroesResponse:
     resp = requests.get(url, {'key': api_key})
     resp.raise_for_status()
     return heroes.GetHeroesResponse(**resp.json())
+
+
+def get_game_items() -> items.GetGameItemsResponse:
+    url = base_url + 'IEconDOTA2_570/GetGameItems/v1'
+    resp = requests.get(url, {'key': api_key})
+    resp.raise_for_status()
+    return items.GetGameItemsResponse(**resp.json())

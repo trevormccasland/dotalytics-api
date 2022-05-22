@@ -64,6 +64,15 @@ class PlayerResult(BaseModel):
 
 class Player(PlayerResult):
     hero_name: str
+    item_0_name: str
+    item_1_name: str
+    item_2_name: str
+    item_3_name: str
+    item_4_name: str
+    item_5_name: str
+    backpack_0_name: str
+    backpack_1_name: str
+    backpack_2_name: str
 
 
 class PicksBan(BaseModel):
