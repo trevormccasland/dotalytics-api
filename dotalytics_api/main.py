@@ -14,10 +14,13 @@ def root():
 
 
 @app.get("/matches")
-def matches(account_id: str):
-    match_history = client.get_match_history(account_id)
+def get_matches(account_id: str):
+    match_history = client.get_match_history(account_id, matches_requested=5)
+    matches = []
+    for match in match_history.result.matches:
+        matches.append(client.get_match_details(match.match_id).result)
 
-    return match_history
+    return matches
 
 
 def main():

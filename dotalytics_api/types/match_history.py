@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from typing import List
+
 
 class Player(BaseModel):
     account_id: str
@@ -14,17 +16,17 @@ class Match(BaseModel):
     lobby_type: int
     radiant_team_id: int
     dire_team_id: int
-    players: list[Player]
+    players: List[Player]
 
 
-class MatchesResponse(BaseModel):
+class MatchHistoryResult(BaseModel):
     status: int
     num_results: int
     total_results: int
     results_remaining: int
-    matches: list[Match]
+    matches: List[Match]
 
 
 class GetMatchHistoryResponse(BaseModel):
-    result: MatchesResponse
+    result: MatchHistoryResult
 
