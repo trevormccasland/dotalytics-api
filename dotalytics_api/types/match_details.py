@@ -23,7 +23,7 @@ class AdditionalUnit(BaseModel):
     item_neutral: int
 
 
-class Player(BaseModel):
+class PlayerResult(BaseModel):
     account_id: int
     player_slot: int
     hero_id: int
@@ -62,6 +62,10 @@ class Player(BaseModel):
     additional_units: Optional[List[AdditionalUnit]] = None
 
 
+class Player(PlayerResult):
+    hero_name: str
+
+
 class PicksBan(BaseModel):
     is_pick: bool
     hero_id: int
@@ -70,7 +74,7 @@ class PicksBan(BaseModel):
 
 
 class MatchDetailsResult(BaseModel):
-    players: List[Player]
+    players: List[PlayerResult]
     radiant_win: bool
     duration: int
     pre_game_duration: int
