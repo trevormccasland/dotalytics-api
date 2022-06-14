@@ -1,0 +1,49 @@
+from pydantic import BaseModel
+
+
+class Player(BaseModel):
+    player_slot: int
+    team_number: int
+    hero_id: int
+    item_0: int
+    item_1: int
+    item_2: int
+    item_3: int
+    item_4: int
+    item_5: int
+    backpack_0: int
+    backpack_1: int
+    backpack_2: int
+    item_neutral: int
+    kills: int
+    deaths: int
+    assists: int
+    leaver_status: int
+    last_hits: int
+    denies: int
+    gold_per_min: int
+    xp_per_min: int
+    level: int
+    net_worth: int
+    aghanims_scepter: int
+    aghanims_shard: int
+    moonshard: int
+    hero_damage: int
+    tower_damage: int
+    hero_healing: int
+    gold: int
+    gold_spent: int
+    scaled_hero_damage: int
+    scaled_tower_damage: int
+    scaled_hero_healing: int
+    item_neutral_name: str
+    hero_name: str
+    item_0_name: str
+    item_1_name: str
+    item_2_name: str
+    item_3_name: str
+    item_4_name: str
+    item_5_name: str
+    backpack_0_name: str
+    backpack_1_name: str
+    backpack_2_name: str

@@ -26,6 +26,8 @@ class AdditionalUnit(BaseModel):
 class PlayerResult(BaseModel):
     account_id: int
     player_slot: int
+    team_number: int
+    team_slot: int
     hero_id: int
     item_0: int
     item_1: int
@@ -60,20 +62,6 @@ class PlayerResult(BaseModel):
     scaled_hero_healing: Optional[int]
     ability_upgrades: Optional[List[AbilityUpgrade]]
     additional_units: Optional[List[AdditionalUnit]] = None
-
-
-class Player(PlayerResult):
-    hero_name: str
-    item_0_name: str
-    item_1_name: str
-    item_2_name: str
-    item_3_name: str
-    item_4_name: str
-    item_5_name: str
-    backpack_0_name: str
-    backpack_1_name: str
-    backpack_2_name: str
-
 
 class PicksBan(BaseModel):
     is_pick: bool
