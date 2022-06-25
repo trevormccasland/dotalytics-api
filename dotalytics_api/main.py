@@ -1,6 +1,7 @@
+from http import HTTPStatus
 import sys
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import uvicorn
 
 from dotalytics_api import client
@@ -19,17 +20,29 @@ app = FastAPI(middleware=[
 ])
 
 
-@app.get("/health")
+@app.get("/healthz")
 def root():
     return {"message": 'up and running'}
 
 
 @app.get("/matches")
-def get_matches(account_id: str):
-    match_history = client.get_match_history(account_id, matches_requested=5)
-    matches = [client.get_match_details(match.match_id).result for match in match_history.result.matches]
-    heroes = client.get_heroes().result
-    items = client.get_game_items().result.items
+def get_matches(account_id: str, matches_requested: int = 5):
+
+    match_history = None
+    matches = None
+    heroes = None
+    items = None
+
+    try:
+        match_history = client.get_match_history(
+            account_id, matches_requested=matches_requested)
+        matches = [client.get_match_details(match.match_id).result for match in match_history.result.matches]
+        heroes = client.get_heroes().result
+        items = client.get_game_items().result.items
+    except Exception:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
+                            detail="Bad request")
+
     for m in range(len(matches)):
         for p in range(len(matches[m].players)):
             item_neutral_name = ''
