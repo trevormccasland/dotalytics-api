@@ -12,6 +12,8 @@ Then create a config.ini file with the following content:
 dotaAPIKey=<your key goes here>
 ```
 
+Install
+-------
 For a first time setup you will have to install the requirements:
 ```bash
 python setup.py develop
