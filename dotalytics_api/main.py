@@ -1,5 +1,6 @@
 from http import HTTPStatus
 import sys
+import asyncio
 
 from fastapi import FastAPI, HTTPException
 import uvicorn
@@ -26,7 +27,7 @@ def root():
 
 
 @app.get("/matches")
-def get_matches(account_id: str, matches_requested: int = 5):
+async def get_matches(account_id: str, matches_requested: int = 5):
 
     match_history = None
     matches = None
@@ -34,9 +35,9 @@ def get_matches(account_id: str, matches_requested: int = 5):
     items = None
 
     try:
-        match_history = client.get_match_history(
+        match_history = await client.get_match_history(
             account_id, matches_requested=matches_requested)
-        matches = [client.get_match_details(match.match_id).result for match in match_history.result.matches]
+        matches = await [client.get_match_details(match.match_id).result for match in match_history.result.matches]
         heroes = client.get_heroes().result
         items = client.get_game_items().result.items
     except Exception:
