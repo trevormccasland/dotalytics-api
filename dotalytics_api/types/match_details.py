@@ -63,11 +63,13 @@ class PlayerResult(BaseModel):
     ability_upgrades: Optional[List[AbilityUpgrade]]
     additional_units: Optional[List[AdditionalUnit]] = None
 
+
 class PicksBan(BaseModel):
     is_pick: bool
     hero_id: int
     team: int
     order: int
+    hero_name: Optional[str] = None
 
 
 class MatchDetailsResult(BaseModel):
