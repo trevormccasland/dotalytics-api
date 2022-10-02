@@ -22,8 +22,12 @@ app = FastAPI(middleware=[
 
 
 def get_hero_map() -> Dict:
-    res = client.get_heroes().result.heroes
-    return {r.id: r.name for r in res}
+    try:
+        res = client.get_heroes().result.heroes
+        return {r.id: r.name for r in res}
+    except Exception:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
+                            detail="Bad request")
 
 
 @app.get("/healthz")
