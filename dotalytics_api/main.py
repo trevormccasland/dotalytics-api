@@ -38,9 +38,13 @@ async def get_matches(account_id: str, matches_requested: int = 5):
         match_history = await client.get_match_history(
             account_id, matches_requested=matches_requested)
         matches = await [client.get_match_details(match.match_id).result for match in match_history.result.matches]
-        heroes = client.get_heroes().result
-        items = client.get_game_items().result.items
-    except Exception:
+        matches = await asyncio.gather(*[
+        client.get_match_details(match.match_id) for match in match_history.result.matches
+        ])
+        matches = [m.result for m in matches]
+        heroes = (await client.get_heroes()).result
+        items = (await client.get_game_items()).result.items
+      except Exception:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
                             detail="Bad request")
 
