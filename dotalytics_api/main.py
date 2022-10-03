@@ -24,11 +24,7 @@ app = FastAPI(
 )
 
 
-<<<<<<< HEAD
 async def get_hero_map() -> Dict:
-=======
-def get_heroes_map() -> Dict:
->>>>>>> 3aba7ff (clean up indices)
     try:
         res = (await client.get_heroes()).result.heroes
         return {r.id: r.name for r in res}
@@ -37,12 +33,13 @@ def get_heroes_map() -> Dict:
                             detail="Bad request %s" % error)
 
 
-def get_items_map() -> Dict:
+async def get_items_map() -> Dict:
     try:
-        res = client.get_game_items().result.items
+        res = (await client.get_game_items()).result.items
         return {r.id: r.name for r in res}
-    except Exception:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Bad request")
+    except Exception as error:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
+                            detail="Bad request %s" % error)
 
 
 @app.get("/healthz")
@@ -56,15 +53,7 @@ async def get_matches(account_id: str, matches_requested: int = 5):
     match_history = None
     matches = None
 
-<<<<<<< HEAD
-    hero_map = await get_hero_map()
-=======
-    hero_map = get_heroes_map()
-    item_map = get_items_map()
-
-    print(item_map)
->>>>>>> 3aba7ff (clean up indices)
-
+    heroes, items = await asyncio.gather(get_hero_map(), get_items_map())
     try:
         match_history = await client.get_match_history(
             account_id, matches_requested=matches_requested)
@@ -72,35 +61,27 @@ async def get_matches(account_id: str, matches_requested: int = 5):
         matches = [
             (await client.get_match_details(match.match_id)).result for match in match_history.result.matches
         ]
-<<<<<<< HEAD
-        heroes, items = await asyncio.gather(client.get_heroes(), client.get_game_items())
-        heroes = heroes.result
-        items = items.result.items
+
     except Exception as error:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
                             detail="Bad request %s" % error)
-=======
-
-    except Exception:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Bad request")
->>>>>>> 3aba7ff (clean up indices)
 
     for m in matches:
         for pb in m.picks_bans:
-            pb.hero_name = hero_map.get(pb.hero_id)
+            pb.hero_name = heroes.get(pb.hero_id)
 
         for p in m.players:
-            p.hero_name = hero_map.get(p.hero_id)
-            p.item_neutral_name = item_map.get(p.item_neutral)
-            p.item_0_name = item_map.get(p.item_0)
-            p.item_1_name = item_map.get(p.item_1)
-            p.item_2_name = item_map.get(p.item_2)
-            p.item_3_name = item_map.get(p.item_3)
-            p.item_4_name = item_map.get(p.item_4)
-            p.item_5_name = item_map.get(p.item_5)
-            p.backpack_0_name = item_map.get(p.backpack_0)
-            p.backpack_1_name = item_map.get(p.backpack_1)
-            p.backpack_2_name = item_map.get(p.backpack_2)
+            p.hero_name = heroes.get(p.hero_id)
+            p.item_neutral_name = items.get(p.item_neutral)
+            p.item_0_name = items.get(p.item_0)
+            p.item_1_name = items.get(p.item_1)
+            p.item_2_name = items.get(p.item_2)
+            p.item_3_name = items.get(p.item_3)
+            p.item_4_name = items.get(p.item_4)
+            p.item_5_name = items.get(p.item_5)
+            p.backpack_0_name = items.get(p.backpack_0)
+            p.backpack_1_name = items.get(p.backpack_1)
+            p.backpack_2_name = items.get(p.backpack_2)
     return matches
 
 
