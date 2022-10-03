@@ -37,7 +37,6 @@ async def get_matches(account_id: str, matches_requested: int = 5):
     try:
         match_history = await client.get_match_history(
             account_id, matches_requested=matches_requested)
-        matches = await [client.get_match_details(match.match_id).result for match in match_history.result.matches]
         matches = await asyncio.gather(*[
         client.get_match_details(match.match_id) for match in match_history.result.matches
         ])
