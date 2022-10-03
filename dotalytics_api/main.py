@@ -1,9 +1,11 @@
 from http import HTTPStatus
 import sys
-import asyncio
+
 
 from fastapi import FastAPI, HTTPException
 import uvicorn
+import asyncio
+
 
 from dotalytics_api import client
 from dotalytics_api.types import player
