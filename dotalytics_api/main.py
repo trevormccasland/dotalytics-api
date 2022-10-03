@@ -1,16 +1,17 @@
 from http import HTTPStatus
 import sys
+from typing import Dict
 
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware import Middleware
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import asyncio
 
 
 from dotalytics_api import client
 from dotalytics_api.types import player
-from fastapi.middleware import Middleware
-from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(middleware=[
     Middleware(
@@ -21,6 +22,15 @@ app = FastAPI(middleware=[
         allow_headers=['*']
     )
 ])
+
+
+def get_hero_map() -> Dict:
+    try:
+        res = client.get_heroes().result.heroes
+        return {r.id: r.name for r in res}
+    except Exception:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
+                            detail="Bad request")
 
 
 @app.get("/healthz")
@@ -36,6 +46,8 @@ async def get_matches(account_id: str, matches_requested: int = 5):
     heroes = None
     items = None
 
+    hero_map = get_hero_map()
+
     try:
         match_history = await client.get_match_history(
             account_id, matches_requested=matches_requested)
@@ -50,6 +62,9 @@ async def get_matches(account_id: str, matches_requested: int = 5):
                             detail="Bad request")
 
     for m in range(len(matches)):
+        for pb in matches[m].picks_bans:
+            pb.hero_name = hero_map.get(pb.hero_id)
+
         for p in range(len(matches[m].players)):
             item_neutral_name = ''
             item_neutral = matches[m].players[p].item_neutral
@@ -92,6 +107,7 @@ async def get_matches(account_id: str, matches_requested: int = 5):
                     backpack_1_name = item.name
                 elif backpack_2 == item.id:
                     backpack_2_name = item.name
+
             for hero in heroes.heroes:
                 if hero.id == matches[m].players[p].hero_id:
                     matches[m].players[p] = player.Player(
