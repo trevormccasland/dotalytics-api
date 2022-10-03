@@ -1,4 +1,5 @@
+async_lru>=1.0.3
 fastapi>=0.78.0
-requests>=2.27.1
+httpx>=0.23.0
 uvicorn>=0.17.6
 pydantic>=1.9.1

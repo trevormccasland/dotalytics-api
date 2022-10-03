@@ -1,11 +1,12 @@
+import asyncio
 from http import HTTPStatus
-import sys
 from typing import Dict
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+
 
 from dotalytics_api import client
 from dotalytics_api.types import player
@@ -21,13 +22,13 @@ app = FastAPI(middleware=[
 ])
 
 
-def get_hero_map() -> Dict:
+async def get_hero_map() -> Dict:
     try:
-        res = client.get_heroes().result.heroes
+        res = (await client.get_heroes()).result.heroes
         return {r.id: r.name for r in res}
-    except Exception:
+    except Exception as error:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
-                            detail="Bad request")
+                            detail="Bad request %s" % error)
 
 
 @app.get("/healthz")
@@ -36,24 +37,28 @@ def root():
 
 
 @app.get("/matches")
-def get_matches(account_id: str, matches_requested: int = 5):
+async def get_matches(account_id: str, matches_requested: int = 5):
 
     match_history = None
     matches = None
     heroes = None
     items = None
 
-    hero_map = get_hero_map()
+    hero_map = await get_hero_map()
 
     try:
-        match_history = client.get_match_history(
+        match_history = await client.get_match_history(
             account_id, matches_requested=matches_requested)
-        matches = [client.get_match_details(match.match_id).result for match in match_history.result.matches]
-        heroes = client.get_heroes().result
-        items = client.get_game_items().result.items
-    except Exception:
+        # Unfortunately, we receive a 429 (Too Many Requests) error when we get match details with asyncio.gather
+        matches = [
+            (await client.get_match_details(match.match_id)).result for match in match_history.result.matches
+        ]
+        heroes, items = await asyncio.gather(client.get_heroes(), client.get_game_items())
+        heroes = heroes.result
+        items = items.result.items
+    except Exception as error:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
-                            detail="Bad request")
+                            detail="Bad request %s" % error)
 
     for m in range(len(matches)):
         for pb in matches[m].picks_bans:
@@ -157,9 +162,15 @@ def get_matches(account_id: str, matches_requested: int = 5):
     return matches
 
 
+async def amain():
+    config = uvicorn.Config("dotalytics_api.main:app", host="0.0.0.0", port=8888, reload=True, log_level="info")
+    server = uvicorn.Server(config)
+    await server.serve()
+
+
 def main():
-    uvicorn.run("dotalytics_api.main:app", host="0.0.0.0", port=8888, reload=True, log_level="info")
+    asyncio.run(amain())
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
