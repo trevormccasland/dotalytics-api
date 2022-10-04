@@ -1,6 +1,6 @@
 import asyncio
 from http import HTTPStatus
-from typing import Dict
+from typing import Dict, List
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware import Middleware
@@ -9,7 +9,7 @@ import uvicorn
 
 
 from dotalytics_api import client
-from dotalytics_api.types import player
+from dotalytics_api.types.match_history import Match
 
 app = FastAPI(
     middleware=[
@@ -24,7 +24,7 @@ app = FastAPI(
 )
 
 
-async def get_hero_map() -> Dict:
+async def get_hero_map() -> Dict[str, str]:
     try:
         res = (await client.get_heroes()).result.heroes
         return {r.id: r.name for r in res}
@@ -33,10 +33,20 @@ async def get_hero_map() -> Dict:
                             detail="Bad request %s" % error)
 
 
-async def get_items_map() -> Dict:
+async def get_items_map() -> Dict[str, str]:
     try:
         res = (await client.get_game_items()).result.items
         return {r.id: r.name for r in res}
+    except Exception as error:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
+                            detail="Bad request %s" % error)
+
+
+async def get_match_history(account_id: str, matches_requested: int) -> List[Match]:
+    try:
+        match_history = await client.get_match_history(
+            account_id, matches_requested=matches_requested)
+        return match_history.result.matches
     except Exception as error:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
                             detail="Bad request %s" % error)
@@ -50,18 +60,15 @@ def root():
 @app.get("/matches")
 async def get_matches(account_id: str, matches_requested: int = 5):
 
-    match_history = None
     matches = None
 
-    heroes, items = await asyncio.gather(get_hero_map(), get_items_map())
+    heroes, items, match_history = await asyncio.gather(
+        get_hero_map(), get_items_map(), get_match_history(account_id, matches_requested))
     try:
-        match_history = await client.get_match_history(
-            account_id, matches_requested=matches_requested)
         # Unfortunately, we receive a 429 (Too Many Requests) error when we get match details with asyncio.gather
         matches = [
-            (await client.get_match_details(match.match_id)).result for match in match_history.result.matches
+            (await client.get_match_details(match.match_id)).result for match in match_history
         ]
-
     except Exception as error:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
                             detail="Bad request %s" % error)
