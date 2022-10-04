@@ -6,4 +6,4 @@ COPY . .
 
 RUN pip install -r requirements.txt
 
-ENTRYPOINT ["uvicorn", "dotalytics_api.main:main", "--host", "0.0.0.0", "--port", "8888"]
+ENTRYPOINT ["uvicorn", "dotalytics_api.main:app", "--host", "0.0.0.0", "--port", "8888"]
