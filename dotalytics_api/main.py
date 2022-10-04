@@ -51,6 +51,7 @@ async def get_match_history(account_id: str, matches_requested: int) -> List[Mat
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
                             detail="Bad request %s" % error)
 
+
 @app.get("/healthz")
 def root():
     return {"message": "up and running"}
