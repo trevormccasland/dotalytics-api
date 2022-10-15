@@ -9,7 +9,7 @@ import uvicorn
 
 
 from dotalytics_api import client
-from dotalytics_api.types.match_history import Match
+from dotalytics_api.types import match, match_history
 
 app = FastAPI(
     middleware=[
@@ -42,11 +42,11 @@ async def get_items_map() -> Dict[str, str]:
                             detail="Bad request %s" % error)
 
 
-async def get_match_history(account_id: str, matches_requested: int) -> List[Match]:
+async def get_match_history(account_id: str, matches_requested: int) -> List[match_history.Match]:
     try:
-        match_history = await client.get_match_history(
+        history = await client.get_match_history(
             account_id, matches_requested=matches_requested)
-        return match_history.result.matches
+        return history.result.matches
     except Exception as error:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
                             detail="Bad request %s" % error)
@@ -57,38 +57,57 @@ def root():
     return {"message": "up and running"}
 
 
-@app.get("/matches")
+@app.get("/matches", response_model=List[match.Match])
 async def get_matches(account_id: str, matches_requested: int = 5):
 
-    matches = None
+    match_details = None
 
-    heroes, items, match_history = await asyncio.gather(
+    heroes, items, history = await asyncio.gather(
         get_hero_map(), get_items_map(), get_match_history(account_id, matches_requested))
     try:
         # Unfortunately, we receive a 429 (Too Many Requests) error when we get match details with asyncio.gather
-        matches = [
-            (await client.get_match_details(match.match_id)).result for match in match_history
+        match_details = [
+            (await client.get_match_details(game.match_id)).result for game in history
         ]
     except Exception as error:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
                             detail="Bad request %s" % error)
-
-    for m in matches:
+    matches: List[match.Match] = []
+    for m in match_details:
+        picks_bans: List[match.PicksBan] = []
         for pb in m.picks_bans:
-            pb.hero_name = heroes.get(pb.hero_id)
-
+            picks_bans.append(
+                match.PicksBan(**pb.dict(), hero_name=heroes.get(pb.hero_id))
+            )
+        players: List[match.Player] = []
         for p in m.players:
-            p.hero_name = heroes.get(p.hero_id)
-            p.item_neutral_name = items.get(p.item_neutral)
-            p.item_0_name = items.get(p.item_0)
-            p.item_1_name = items.get(p.item_1)
-            p.item_2_name = items.get(p.item_2)
-            p.item_3_name = items.get(p.item_3)
-            p.item_4_name = items.get(p.item_4)
-            p.item_5_name = items.get(p.item_5)
-            p.backpack_0_name = items.get(p.backpack_0)
-            p.backpack_1_name = items.get(p.backpack_1)
-            p.backpack_2_name = items.get(p.backpack_2)
+            players.append(
+                match.Player(
+                    **p.dict(),
+                    hero_name=heroes.get(p.hero_id),
+                    item_neutral_name=items.get(p.item_neutral),
+                    item_0_name=items.get(p.item_0),
+                    item_1_name=items.get(p.item_1),
+                    item_2_name=items.get(p.item_2),
+                    item_3_name=items.get(p.item_3),
+                    item_4_name=items.get(p.item_4),
+                    item_5_name=items.get(p.item_5),
+                    backpack_0_name=items.get(p.backpack_0),
+                    backpack_1_name=items.get(p.backpack_1),
+                    backpack_2_name=items.get(p.backpack_2),
+                )
+            )
+        game = m.dict()
+        del game['players']
+        del game['picks_bans']
+        matches.append(
+            match.Match(
+                **game,
+                players=players,
+                picks_bans=picks_bans
+            )
+        )
+
     return matches
 
 

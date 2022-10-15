@@ -29,7 +29,6 @@ class PlayerResult(BaseModel):
     team_number: int
     team_slot: int
     hero_id: int
-    hero_name: Optional[str]
     item_0: int
     item_1: int
     item_2: int
@@ -63,16 +62,6 @@ class PlayerResult(BaseModel):
     scaled_hero_healing: Optional[int]
     ability_upgrades: Optional[List[AbilityUpgrade]]
     additional_units: Optional[List[AdditionalUnit]] = None
-    item_neutral_name: Optional[str]
-    item_0_name: Optional[str]
-    item_1_name: Optional[str]
-    item_2_name: Optional[str]
-    item_3_name: Optional[str]
-    item_4_name: Optional[str]
-    item_5_name: Optional[str]
-    backpack_0_name: Optional[str]
-    backpack_1_name: Optional[str]
-    backpack_2_name: Optional[str]
 
 
 class PicksBan(BaseModel):
@@ -80,11 +69,9 @@ class PicksBan(BaseModel):
     hero_id: int
     team: int
     order: int
-    hero_name: Optional[str] = None
 
 
-class MatchDetailsResult(BaseModel):
-    players: List[PlayerResult]
+class BaseMatchDetailsResult(BaseModel):
     radiant_win: bool
     duration: int
     pre_game_duration: int
@@ -107,6 +94,10 @@ class MatchDetailsResult(BaseModel):
     engine: int
     radiant_score: int
     dire_score: int
+
+
+class MatchDetailsResult(BaseMatchDetailsResult):
+    players: List[PlayerResult]
     picks_bans: List[PicksBan]
 
 
