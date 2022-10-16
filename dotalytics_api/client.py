@@ -3,7 +3,7 @@ import asyncio
 import httpx
 
 from dotalytics_api import config
-from dotalytics_api.types import items, heroes, match_details, match_history
+from dotalytics_api.types import items, heroes, match_details, match_history, steam_user
 
 
 base_url = 'https://api.steampowered.com/'
@@ -44,3 +44,12 @@ async def get_game_items() -> items.GetGameItemsResponse:
         resp = await client.get(url, params={'key': api_key})
         resp.raise_for_status()
         return items.GetGameItemsResponse(**resp.json())
+
+
+@alru_cache
+async def get_steam_id(vanity_url: str) -> steam_user.ResolveVanityUrlResponse:
+    url = base_url + 'ISteamUser/ResolveVanityURL/v0001/'
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(url, params={'key': api_key, 'vanityurl': vanity_url})
+        resp.raise_for_status()
+        return steam_user.ResolveVanityUrlResponse(**resp.json())

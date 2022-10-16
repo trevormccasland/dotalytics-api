@@ -9,7 +9,7 @@ import uvicorn
 
 
 from dotalytics_api import client
-from dotalytics_api.types import match, match_history
+from dotalytics_api.types import match, match_history, steam_user
 
 app = FastAPI(
     middleware=[
@@ -109,6 +109,14 @@ async def get_matches(account_id: str, matches_requested: int = 5):
         )
 
     return matches
+
+
+@app.get("/user", response_model=steam_user.ResolveVanityUrlItem)
+async def get_steam_id(username: str):
+    try:
+        return (await client.get_steam_id(username)).response
+    except Exception as error:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail='Bad request %s' % error)
 
 
 async def amain():
