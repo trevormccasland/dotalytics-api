@@ -1,3 +1,7 @@
+Steam API documentation
+=======================
+https://steamwebapi.azurewebsites.net/
+
 Development Setup
 =================
 
