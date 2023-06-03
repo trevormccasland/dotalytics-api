@@ -39,7 +39,7 @@ async def get_heroes() -> heroes.GetHeroesResponse:
 
 @alru_cache
 async def get_game_items() -> items.GetGameItemsResponse:
-    url = base_url + 'IEconDOTA2_570/GetGameItems/v1'
+    url = base_url + 'IEconDOTA2_205790/GetGameItems/v1'
     async with httpx.AsyncClient() as client:
         resp = await client.get(url, params={'key': api_key})
         resp.raise_for_status()
