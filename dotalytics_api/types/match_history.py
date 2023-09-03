@@ -7,6 +7,8 @@ class Player(BaseModel):
     account_id: str
     player_slot: int
     hero_id: int
+    team_number: int
+    team_slot: int
 
 
 class Match(BaseModel):

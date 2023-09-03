@@ -3,7 +3,7 @@ from typing import List, Optional
 from dotalytics_api.types import match_details
 
 
-class Player(match_details.PlayerResult):
+class Player(match_details.Player):
     hero_name: str
     item_neutral_name: Optional[str]
     item_0_name: Optional[str]
@@ -21,6 +21,6 @@ class PicksBan(match_details.PicksBan):
     hero_name: str
 
 
-class Match(match_details.BaseMatchDetailsResult):
+class Match(match_details.MatchDetailsResult):
     players: List[Player]
     picks_bans: List[PicksBan]

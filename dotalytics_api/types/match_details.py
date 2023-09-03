@@ -3,102 +3,82 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 
+class PicksBan(BaseModel):
+    hero_id: int
+    is_pick: bool
+    order: int
+    team: int
+
+
 class AbilityUpgrade(BaseModel):
     ability: int
+    level: int
     time: int
-    level: int
 
 
-class AdditionalUnit(BaseModel):
-    unitname: str
-    item_0: int
-    item_1: int
-    item_2: int
-    item_3: int
-    item_4: int
-    item_5: int
-    backpack_0: int
-    backpack_1: int
-    backpack_2: int
-    item_neutral: int
-
-
-class PlayerResult(BaseModel):
+class Player(BaseModel):
+    ability_upgrades: List[AbilityUpgrade]
     account_id: int
-    player_slot: int
-    team_number: int
-    team_slot: int
-    hero_id: int
-    item_0: int
-    item_1: int
-    item_2: int
-    item_3: int
-    item_4: int
-    item_5: int
-    backpack_0: int
-    backpack_1: int
-    backpack_2: int
-    item_neutral: int
-    kills: int
-    deaths: int
-    assists: int
-    leaver_status: int
-    last_hits: int
-    denies: int
-    gold_per_min: int
-    xp_per_min: int
-    level: int
-    net_worth: int
     aghanims_scepter: int
     aghanims_shard: int
-    moonshard: int
-    hero_damage: Optional[int]
-    tower_damage: Optional[int]
-    hero_healing: Optional[int]
-    gold: Optional[int]
-    gold_spent: Optional[int]
-    scaled_hero_damage: Optional[int]
-    scaled_tower_damage: Optional[int]
-    scaled_hero_healing: Optional[int]
-    ability_upgrades: Optional[List[AbilityUpgrade]]
-    additional_units: Optional[List[AdditionalUnit]] = None
-
-
-class PicksBan(BaseModel):
-    is_pick: bool
+    assists: int
+    backpack_0: int
+    backpack_1: int
+    backpack_2: int
+    deaths: int
+    denies: int
+    gold: int
+    gold_per_min: int
+    gold_spent: int
+    hero_damage: int
+    hero_healing: int
     hero_id: int
-    team: int
-    order: int
+    item_0: int
+    item_1: int
+    item_2: int
+    item_3: int
+    item_4: int
+    item_5: int
+    item_neutral: int
+    kills: int
+    last_hits: int
+    leaver_status: int
+    level: int
+    moonshard: int
+    net_worth: int
+    player_slot: int
+    scaled_hero_damage: int
+    scaled_hero_healing: int
+    scaled_tower_damage: int
+    team_number: int
+    team_slot: int
+    tower_damage: int
+    xp_per_min: int
 
 
-class BaseMatchDetailsResult(BaseModel):
-    radiant_win: bool
-    duration: int
-    pre_game_duration: int
-    start_time: int
-    match_id: int
-    match_seq_num: int
-    tower_status_radiant: int
-    tower_status_dire: int
-    barracks_status_radiant: int
+class MatchDetailsResult(BaseModel):
     barracks_status_dire: int
+    barracks_status_radiant: int
     cluster: int
+    dire_score: int
+    duration: int
+    engine: int
     first_blood_time: int
-    lobby_type: int
+    flags: int
+    game_mode: int
     human_players: int
     leagueid: int
-    positive_votes: int
-    negative_votes: int
-    game_mode: int
-    flags: int
-    engine: int
-    radiant_score: int
-    dire_score: int
-
-
-class MatchDetailsResult(BaseMatchDetailsResult):
-    players: List[PlayerResult]
+    lobby_type: int
+    match_id: int
+    match_seq_num: int
     picks_bans: List[PicksBan]
+    players: List[Player]
+    pre_game_duration: int
+    radiant_score: int
+    radiant_win: bool
+    start_time: int
+    tower_status_dire: int
+    tower_status_radiant: int
 
 
 class GetMatchDetailsResponse(BaseModel):
